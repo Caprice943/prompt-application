@@ -6,6 +6,7 @@ import { Card } from 'primeng/card'
 import { Button } from 'primeng/button'
 import { InputText } from 'primeng/inputtext'
 import { Password } from 'primeng/password'
+import { MessageService } from 'primeng/api'
 
 @Component({
   selector: 'app-auth-form',
@@ -14,11 +15,13 @@ import { Password } from 'primeng/password'
   styleUrl: './auth-form.scss',
 })
 export class AuthForm {
+  messageService = inject(MessageService)
   authService = inject(AuthService)
   router = inject(Router)
   mode = signal<'login' | 'register'>('login')
-  
 
+  submitting = signal(false)
+  
   form = new FormGroup({
     username: new FormControl('', {
       nonNullable: true,
@@ -48,14 +51,43 @@ export class AuthForm {
   }
 
   login(username: string, password: string) {
-    this.authService.login(username, password).subscribe(() => {
+    this.authService.login(username, password).subscribe({
+      next: () => {
+      this.submitting.set(false)
       void this.router.navigate(['/'])
-    })
-  }
+    },
+    error:() =>{
+      this.submitting.set(false)
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Identifiants incorrects, veuillez réessayer.',
+      })
+
+    }
+  })
+}
 
   register(username: string, password: string) {
-    this.authService.register(username, password).subscribe(() => {
-      void this.router.navigate(['/'])
+    this.authService.register(username, password).subscribe({
+      next: () =>{
+        void this.router.navigate(['/'])
+        this.submitting.set(false)
+      },
+      error:() =>{
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Une erreur est survenue lors de l\'inscription, veuillez réessayer.',
+        })
+      },
+      complete:() =>{
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Succès',
+          detail: 'Inscription réussie !',
+        })
+      }
     })
   }
 }

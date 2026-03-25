@@ -6,7 +6,7 @@
         </div>
         <div class="flex gap-2">
             @if(canEdit()){
-                <p-button [routerLink]="['/prompts', prompt().id, 'edit']" icon="pi pi-pencil" size="small" [text]="true" />
+            <p-button [routerLink]="['/prompts', prompt().id, 'edit']" icon="pi pi-pencil" size="small" [text]="true" />
             }
             <p-button icon="pi pi-copy" size="small" (onClick)="copyToClipboard()" [text]="true" />
         </div>
@@ -17,9 +17,11 @@
         <p-tag severity="secondary" [value]="prompt().category.name" />
 
         <div class="flex gap-2 align-items-center">
-            <p-button severity="secondary" icon="pi pi-thumbs-up" size="small" />
-            <span> {{prompt().score}} </span>
-            <p-button severity="secondary" icon="pi pi-thumbs-down" size="small" />
+            <p-button [loading]="voting()" (onClick)="upvote()"
+                [severity]="userVote() === 'up' ? 'primary' : 'secondary'" icon="pi pi-thumbs-up" size="small" />
+            <span> {{score()}} </span>
+            <p-button [loading]="voting()" (onClick)="downvote()"
+                [severity]="userVote() === 'down' ? 'primary' : 'secondary'" icon="pi pi-thumbs-down" size="small" />
 
         </div>
     </div>

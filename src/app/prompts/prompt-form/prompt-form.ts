@@ -1,4 +1,4 @@
-import { Component, effect, inject, input } from '@angular/core'
+import { Component, effect, inject, input, signal } from '@angular/core'
 import { Card } from 'primeng/card';
 import { Select } from 'primeng/select';
 import { CategoryService } from '../category-service';
@@ -7,10 +7,12 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Button } from 'primeng/button';
 import { PromptService } from '../prompt-service';
 import { Router, RouterLink } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-prompt-form',
-  imports: [Card, Select, ReactiveFormsModule, Button, RouterLink],
+  imports: [Card, Select, ReactiveFormsModule, Button, RouterLink, ProgressSpinner],
   templateUrl: './prompt-form.html',
   styleUrl: './prompt-form.scss',
 })
@@ -18,9 +20,14 @@ export class PromptForm {
   categoryService = inject(CategoryService)
   promptService = inject(PromptService)
   router = inject(Router)
+  messageService = inject(MessageService)
 
   categories = toSignal(this.categoryService.getCategories())
   promptId = input<number>()
+
+  loading = signal(false)
+  submitting = signal(false)
+  deleting = signal(false)
 
   form = new FormGroup({
     title: new FormControl('', {
@@ -33,6 +40,7 @@ export class PromptForm {
       nonNullable: true,
     }),
   })
+
 
     constructor() {
     effect(() => {
@@ -55,19 +63,40 @@ export class PromptForm {
 
     const prompt = this.form.getRawValue()
     const promptId = this.promptId()
+    this.submitting.set(true)
+
     if (promptId) {
       this.promptService.updatePrompt(promptId, prompt).subscribe(() => {
         void this.router.navigate(['/'])
+        this.submitting.set(false)
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Modifié',
+          detail: 'Prompt modifié avec succès !',
+        })
       })
     } else {
       this.promptService.createPrompt(prompt).subscribe(() => {
         void this.router.navigate(['/'])
+        this.submitting.set(false)
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Créé',
+          detail: 'Prompt créé avec succès !',
+        })
       })
     }
   }
 
   deletePrompt() {
+    this.deleting.set(true)
     this.promptService.deletePrompt(this.promptId()!).subscribe(() => {
+      this.deleting.set(false)
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Supprimé',
+        detail: 'Prompt supprimé avec succès !',
+      })
       void this.router.navigate(['/'])
     })
   }

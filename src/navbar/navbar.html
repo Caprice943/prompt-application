@@ -14,7 +14,7 @@
             <p-button severity="secondary" routerLink="/auth" label="Connexion" size="small" />
             }
 
-            <p-button severity="secondary" size="small" (onClick)="toggleDarkMode()"
+            <p-button severity="secondary" size="small" (onClick)="isDark.update((value) => !value)"
                 [icon]="isDark() ? 'pi pi-sun' : 'pi pi-moon'" />
             <p-button routerLink="/prompts/create" label="Ajouter" icon="pi pi-plus" size="small"/>
         </div>
