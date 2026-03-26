@@ -18,3 +18,7 @@ npm start
 Ouvre `http://localhost:4200/`. Le backend (NestJS, port 3000) doit tourner pour que l’app fonctionne.
 
 **Backend :** [prompt-hub-backend](https://github.com/GaetanRouzies/prompt-hub-backend)
+
+## Démo 🎥
+
+[![Voir la démo](https://img.youtube.com/vi/mJAxjoKwJQI)](https://www.youtube.com/watch?v=mJAxjoKwJQI)
